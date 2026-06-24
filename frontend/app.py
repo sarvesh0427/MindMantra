@@ -252,6 +252,8 @@ elif page == "About the Project":
         "The goal of this platform is to provide accessible mental health support and encourage "
         "people to talk about their mental well-being without fear of judgment."
     )
+    st.write('Version 1: ')
+    st.markdown("[🌐 Click Here !!!](https://mindmantra.streamlit.app/)")
     
     st.markdown("---")
     st.markdown("### ⚠️ Disclaimer")
@@ -270,9 +272,4 @@ elif page == "About the Project":
     
     st.markdown("---")
     
-    # Elegant footer alignments
-    col_link, col_copy = st.columns([1, 2])
-    with col_link:
-        st.markdown("[🌐 View Production Platform](https://mindmantra.streamlit.app/)")
-    with col_copy:
-        st.caption("© 2025 Final Year Project | School of Engineering, Pokhara University – Nepal")
+    st.caption("© 2025 Final Year Project | School of Engineering, Pokhara University – Nepal")
