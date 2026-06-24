@@ -252,8 +252,7 @@ elif page == "About the Project":
         "The goal of this platform is to provide accessible mental health support and encourage "
         "people to talk about their mental well-being without fear of judgment."
     )
-    st.write('Version 1: ')
-    st.markdown("[🌐 Click Here !!!](https://mindmantra.streamlit.app/)")
+    st.write('Explore the first version of MindMantra: https://mindmantra.streamlit.app/')
     
     st.markdown("---")
     st.markdown("### ⚠️ Disclaimer")
