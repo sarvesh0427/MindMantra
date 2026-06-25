@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
 import time
-
+import random
+import about
 # --- Configuration ---
 API_BASE_URL = "http://localhost:8000/api"
 
@@ -12,6 +13,18 @@ st.set_page_config(
     layout="centered",
     initial_sidebar_state="expanded"
 )
+
+# --- Motivational Quotes Pool ---
+MOTIVATIONAL_QUOTES = [
+    "\"You don't have to control your thoughts. You just have to stop letting them control you.\" — Dan Millman",
+    "\"Healing takes time, and asking for help is a courageous step. You are never alone in this journey.\"",
+    "\"Your mental health is a priority. Your happiness is essential. Your self-care is a necessity.\"",
+    "\"It is okay to not be okay, but you don't have to navigate it in silence.\"",
+    "\"This feeling will pass. You are stronger, more resilient, and more capable than you think.\"",
+    "\"You are not your illness. You have an individual story, a beautiful mind, and a bright future.\"",
+    "\"Self-care is how you take your power back.\" — Lalah Delia",
+    "\"Sometimes the bravest thing you can do is just to take things one day at a time.\""
+]
 
 # --- Backward-Compatible Rerun Helper ---
 def safe_rerun():
@@ -45,6 +58,8 @@ if 'diagnostic_data' not in st.session_state:
     st.session_state.diagnostic_data = {}
 if 'current_q_index' not in st.session_state:
     st.session_state.current_q_index = 0
+if 'quote' not in st.session_state:
+    st.session_state.quote = random.choice(MOTIVATIONAL_QUOTES)
 
 def reset_session():
     st.session_state.step = 'input'
@@ -53,6 +68,8 @@ def reset_session():
     st.session_state.confirmed_symptom_ids = []
     st.session_state.diagnostic_data = {}
     st.session_state.current_q_index = 0
+    # Pick a fresh quote when restarting
+    st.session_state.quote = random.choice(MOTIVATIONAL_QUOTES)
 
 # --- Helper API Functions ---
 def fetch_semantic_matches(text):
@@ -114,6 +131,10 @@ else:
 if page == "AI Diagnostic Engine":
     st.title("🧠 MindMantra v2.0")
     st.markdown("### Mental Health Condition Predictor")
+    
+    # Render the dynamic motivational quote block beautifully at the top
+    st.markdown(f"> {st.session_state.quote}")
+    st.write("") # Spacer
 
     if not is_online:
         st.warning("⚠️ MindMantra is currently offline. Please start the FastAPI backend server in your terminal to continue.")
@@ -231,44 +252,14 @@ if page == "AI Diagnostic Engine":
             reset_session()
             safe_rerun()
 
+
 # ==========================================
 # PAGE 2: ABOUT THE PROJECT
 # ==========================================
 elif page == "About the Project":
-    st.title("ℹ️ About the Project")
-    st.markdown("## Mind Mantra: AI Powered Mental Health Support System")
+    about.about()
     
-    st.write(
-        "This project is a final year capstone project developed by a **Computer Engineering student** "
-        "from the **School of Engineering, Pokhara University**. It is an AI-powered Mental Health Support System "
-        "designed to assist individuals who are experiencing mental health challenges."
-    )
+   
     
-    st.markdown("### The system offers:")
-    st.markdown("- **Symptom-based prediction** of mental health conditions.")
-    st.markdown("- **Actionable precautions** to assist individuals on their recovery journey.")
-    
-    st.write(
-        "The goal of this platform is to provide accessible mental health support and encourage "
-        "people to talk about their mental well-being without fear of judgment."
-    )
-    st.write('Explore the first version of MindMantra: https://mindmantra.streamlit.app/')
-    
-    st.markdown("---")
-    st.markdown("### ⚠️ Disclaimer")
-    
-    # Using a structured callout container for the disclaimer text to make it stand out
-    st.info(
-        "This platform is intended for **educational and research purposes only**. It is not a substitute "
-        "for professional medical advice, diagnosis, or treatment. Always seek the guidance of a qualified "
-        "mental health professional with any questions or concerns you may have regarding a medical condition.\n\n"
-        "The recommendations provided by this system are based on available data and AI models and may not "
-        "be fully accurate. The developer and affiliated institutions are not liable for any decisions made "
-        "based on the information provided by this system.\n\n"
-        "By using this platform, you agree to this disclaimer and understand that the system does not provide "
-        "licensed medical or psychiatric care."
-    )
-    
-    st.markdown("---")
-    
-    st.caption("© 2025 Final Year Project | School of Engineering, Pokhara University – Nepal")
+st.markdown("---")
+st.caption("© 2025 Final Year Project | School of Engineering, Pokhara University – Nepal")
