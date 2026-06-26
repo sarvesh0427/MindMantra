@@ -46,6 +46,7 @@
             </div>
             <nav class="flex gap-4">
                 <button onclick="switchTab('diagnostic')" id="nav-diagnostic" class="text-teal-400 font-semibold transition-colors hover:text-teal-300 text-sm">Diagnostic Engine</button>
+                <button onclick="switchTab('calm')" id="nav-calm" class="text-slate-400 font-medium transition-colors hover:text-slate-200 text-sm">Calm Zone</button>
                 <button onclick="switchTab('about')" id="nav-about" class="text-slate-400 font-medium transition-colors hover:text-slate-200 text-sm">About</button>
             </nav>
         </div>
@@ -157,6 +158,44 @@
         </div>
 
         <!-- ========================================== -->
+        <!-- VIEW 3: CALM ZONE (BREATHING SPACE) -->
+        <!-- ========================================== -->
+        <div id="view-calm" class="hidden fade-in space-y-6">
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl text-center">
+                <h2 class="text-2xl font-bold mb-2 flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-wind text-teal-400"></i> Calm Zone
+                </h2>
+                <p class="text-slate-400 text-sm mb-8 max-w-lg mx-auto">
+                    Feeling anxious, nervous, or overwhelmed? Take a moment to ground yourself. Use this simple 4-4-4 Box Breathing companion designed to regulate your heartbeat.
+                </p>
+
+                <!-- Dynamic Breathing Visualizer -->
+                <div class="flex flex-col items-center justify-center py-6">
+                    <div class="relative w-64 h-64 flex items-center justify-center mb-8">
+                        <!-- Outer Glow Ring -->
+                        <div class="absolute inset-0 border border-teal-500/10 rounded-full animate-ping opacity-30"></div>
+                        <!-- Breathing Circle Dynamic Element -->
+                        <div id="breath-bubble" class="w-40 h-40 rounded-full bg-teal-500/10 border border-teal-500/30 shadow-2xl flex flex-col items-center justify-center transition-all duration-1000 ease-in-out transform">
+                            <span id="breath-text" class="text-2xl font-bold text-teal-300">Ready</span>
+                            <span id="breath-timer" class="text-sm text-teal-400/80 mt-1"></span>
+                        </div>
+                    </div>
+
+                    <!-- Ambient Sound Note -->
+                    <p class="text-xs text-slate-500 mb-6 italic">
+                        🔊 Generative ambient grounding hum will sound softly when starting.
+                    </p>
+
+                    <!-- Control Button -->
+                    <button id="btn-breath-control" onclick="toggleBreathingGuide()" class="bg-teal-600 hover:bg-teal-500 text-white font-semibold py-3 px-8 rounded-xl transition-all flex items-center gap-2">
+                        <i id="breath-icon" class="fa-solid fa-circle-play"></i>
+                        <span id="breath-btn-text">Start Breathing Guide</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
         <!-- VIEW 2: ABOUT PAGE -->
         <!-- ========================================== -->
         <div id="view-about" class="hidden fade-in space-y-6">
@@ -176,9 +215,26 @@
                     <li><strong>Actionable precautions</strong> to assist individuals on their recovery journey.</li>
                 </ul>
 
-                <p class="text-slate-400 text-sm leading-relaxed mb-8">
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">
                     The goal of this platform is to provide accessible mental health support and encourage people to talk about their mental well-being without fear of judgment.
                 </p>
+
+                <!-- Explore Version 1 Card Option -->
+                <div class="mb-8 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-teal-500/10 text-teal-400 rounded-lg flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-code-compare text-lg"></i>
+                        </div>
+                        <div class="text-center sm:text-left">
+                            <h4 class="font-bold text-slate-200 text-sm">Explore Version 1.0</h4>
+                            <p class="text-xs text-slate-400">View the original proof-of-concept prototype built on the Streamlit platform.</p>
+                        </div>
+                    </div>
+                    <a href="https://mindmantra.streamlit.app/" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto text-center px-5 py-2.5 bg-teal-600/20 hover:bg-teal-600/30 border border-teal-500/30 text-teal-400 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 shrink-0">
+                        <span>Launch Prototype</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
 
                 <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5">
                     <h4 class="font-bold text-amber-400 mb-2 flex items-center gap-2">
@@ -203,7 +259,7 @@
     <footer class="mt-auto py-6 border-t border-slate-800 bg-slate-950">
         <div class="max-w-4xl mx-auto px-4 text-center">
             <p class="text-xs text-slate-500">
-                © 2025 Final Year Project | School of Engineering, Pokhara University – Nepal<br>
+                © 2026 Final Year Project | School of Engineering, Pokhara University – Nepal<br>
                 <a href="#" class="text-teal-500 hover:underline mt-1 inline-block">mindmantra.netlify.app</a>
             </p>
         </div>
@@ -270,7 +326,7 @@
             currentQIndex: 0
         };
 
-        // --- Motivational Quotes ---
+        // --- Motivational Quotes Pool ---
         const quotes = [
             "\"You don't have to control your thoughts. You just have to stop letting them control you.\" — Dan Millman",
             "\"Healing takes time, and asking for help is a courageous step. You are never alone in this journey.\"",
@@ -282,19 +338,148 @@
             "\"Sometimes the bravest thing you can do is just to take things one day at a time.\""
         ];
 
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            setRandomQuote();
-        });
+        // --- Sound Generator (Web Audio API) ---
+        let audioCtx = null;
+        let oscillator = null;
+        let gainNode = null;
+
+        function startCalmingSound() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            oscillator = audioCtx.createOscillator();
+            gainNode = audioCtx.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 130.81; // Soft and grounding low C3 note
+            
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+        }
+
+        function setSoundVolume(vol, duration = 0.5) {
+            if (gainNode && audioCtx) {
+                gainNode.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + duration);
+            }
+        }
+
+        function stopCalmingSound() {
+            if (oscillator) {
+                try {
+                    oscillator.stop();
+                } catch(e){}
+                oscillator.disconnect();
+                oscillator = null;
+            }
+        }
+
+        // --- Calm Zone / Breathing Loop Controls ---
+        let breathingInterval = null;
+        let breathState = 0; // 0: Inhale, 1: Hold, 2: Exhale
+        let breathSeconds = 0;
+        let breathingActive = false;
+
+        function toggleBreathingGuide() {
+            if (breathingActive) {
+                stopBreathing();
+            } else {
+                startBreathing();
+            }
+        }
+
+        function startBreathing() {
+            breathingActive = true;
+            document.getElementById('breath-btn-text').innerText = "Stop Guide";
+            document.getElementById('breath-icon').className = "fa-solid fa-circle-stop text-rose-400";
+            
+            try {
+                startCalmingSound();
+            } catch(e) { console.log("Audio contexts blocked or not supported on device.", e); }
+            
+            breathState = 0;
+            breathSeconds = 4;
+            runBreathingCycle();
+            
+            breathingInterval = setInterval(() => {
+                breathSeconds--;
+                if (breathSeconds <= 0) {
+                    breathState = (breathState + 1) % 3;
+                    breathSeconds = 4;
+                    runBreathingCycle();
+                } else {
+                    document.getElementById('breath-timer').innerText = `${breathSeconds}s`;
+                }
+            }, 1000);
+        }
+
+        function runBreathingCycle() {
+            const bubble = document.getElementById('breath-bubble');
+            const text = document.getElementById('breath-text');
+            const timer = document.getElementById('breath-timer');
+            
+            timer.innerText = `${breathSeconds}s`;
+            
+            if (breathState === 0) {
+                // Inhale State
+                text.innerText = "Breathe In";
+                bubble.style.transform = "scale(1.3)";
+                bubble.className = "w-40 h-40 rounded-full bg-teal-500/30 border border-teal-400/50 shadow-2xl shadow-teal-500/40 flex flex-col items-center justify-center transition-all duration-1000 ease-in-out";
+                setSoundVolume(0.12, 3.8); // Swell amplitude
+            } else if (breathState === 1) {
+                // Hold State
+                text.innerText = "Hold";
+                bubble.style.transform = "scale(1.3)";
+                bubble.className = "w-40 h-40 rounded-full bg-emerald-500/30 border border-emerald-400/50 shadow-2xl shadow-emerald-500/40 flex flex-col items-center justify-center transition-all duration-1000 ease-in-out";
+                setSoundVolume(0.06, 0.5); // Soft continuous drone
+            } else {
+                // Exhale State
+                text.innerText = "Breathe Out";
+                bubble.style.transform = "scale(0.85)";
+                bubble.className = "w-40 h-40 rounded-full bg-slate-900/40 border border-teal-500/10 flex flex-col items-center justify-center transition-all duration-1000 ease-in-out";
+                setSoundVolume(0.005, 3.8); // Soft decay
+            }
+        }
+
+        function stopBreathing() {
+            breathingActive = false;
+            clearInterval(breathingInterval);
+            stopCalmingSound();
+            
+            document.getElementById('breath-btn-text').innerText = "Start Breathing Guide";
+            document.getElementById('breath-icon').className = "fa-solid fa-circle-play";
+            
+            const bubble = document.getElementById('breath-bubble');
+            const text = document.getElementById('breath-text');
+            const timer = document.getElementById('breath-timer');
+            
+            text.innerText = "Ready";
+            timer.innerText = "";
+            bubble.style.transform = "scale(1)";
+            bubble.className = "w-40 h-40 rounded-full bg-teal-500/10 border border-teal-500/30 shadow-2xl flex flex-col items-center justify-center transition-all duration-1000 ease-in-out";
+        }
 
         // --- Navigation Logic ---
         function switchTab(tabId) {
+            // Stop sound and guides instantly if user leaves Calm zone
+            if (tabId !== 'calm') {
+                stopBreathing();
+            }
+
             // Update nav styles
             document.getElementById('nav-diagnostic').className = tabId === 'diagnostic' ? 'text-teal-400 font-semibold transition-colors text-sm' : 'text-slate-400 font-medium transition-colors hover:text-slate-200 text-sm';
+            document.getElementById('nav-calm').className = tabId === 'calm' ? 'text-teal-400 font-semibold transition-colors text-sm' : 'text-slate-400 font-medium transition-colors hover:text-slate-200 text-sm';
             document.getElementById('nav-about').className = tabId === 'about' ? 'text-teal-400 font-semibold transition-colors text-sm' : 'text-slate-400 font-medium transition-colors hover:text-slate-200 text-sm';
             
             // Toggle Views
             document.getElementById('view-diagnostic').classList.toggle('hidden', tabId !== 'diagnostic');
+            document.getElementById('view-calm').classList.toggle('hidden', tabId !== 'calm');
             document.getElementById('view-about').classList.toggle('hidden', tabId !== 'about');
         }
 
@@ -309,6 +494,11 @@
             const quote = quotes[Math.floor(Math.random() * quotes.length)];
             document.getElementById('quote-text').innerText = quote;
         }
+
+        // --- Page Initializer ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setRandomQuote();
+        });
 
         function showError(msg) {
             const container = document.getElementById('error-container');
