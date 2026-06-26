@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindMantra | AI Diagnostic</title>
+    <!-- Tailwind CSS for Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: { primary: '#0d9488', secondary: '#0f766e' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased">
+
+    <!-- Navigation Bar -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('diagnostic')">
+                <div class="w-10 h-10 bg-teal-500/20 border border-teal-500/30 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-brain text-teal-400 text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-100 tracking-tight">MindMantra <span class="text-teal-400">v2.0</span></h1>
+                </div>
+            </div>
+            <nav class="flex gap-4">
+                <button onclick="switchTab('diagnostic')" id="nav-diagnostic" class="text-teal-400 font-semibold transition-colors hover:text-teal-300 text-sm">Diagnostic Engine</button>
+                <button onclick="switchTab('about')" id="nav-about" class="text-slate-400 font-medium transition-colors hover:text-slate-200 text-sm">About</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-8">
+        
+        <!-- Error Alert Container -->
+        <div id="error-container" class="hidden mb-6 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation mt-1"></i>
+            <div>
+                <h3 class="font-bold text-sm">System Error</h3>
+                <p id="error-message" class="text-xs mt-1"></p>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: DIAGNOSTIC ENGINE -->
+        <!-- ========================================== -->
+        <div id="view-diagnostic" class="fade-in block">
+            
+            <!-- Motivational Quote -->
+            <div class="mb-8 border-l-4 border-teal-500 pl-4 py-1">
+                <p id="quote-text" class="text-slate-300 italic text-lg font-medium leading-relaxed"></p>
+            </div>
+
+            <!-- Main Interactive Card -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+                
+                <!-- STEP 1: INPUT -->
+                <div id="step-1" class="block fade-in">
+                    <h2 class="text-xl font-bold mb-2">How have you been feeling?</h2>
+                    <p class="text-slate-400 text-sm mb-6">Describe your physical or emotional state in your own words. The AI will extract clinical symptoms automatically.</p>
+                    <textarea id="user-input" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 placeholder-slate-500 min-h-[150px]" placeholder="e.g., I've been feeling extremely tired, I can't concentrate on my work, and I'm always worried..."></textarea>
+                    <button onclick="analyzeSymptoms()" id="btn-analyze" class="mt-4 w-full bg-teal-600 hover:bg-teal-500 text-white font-semibold py-3 px-4 rounded-xl transition-all flex justify-center items-center gap-2">
+                        <span>Analyze Symptoms</span>
+                        <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- STEP 2: CONFIRM SYMPTOMS -->
+                <div id="step-2" class="hidden fade-in">
+                    <div class="flex items-center gap-2 text-emerald-400 mb-2">
+                        <i class="fa-solid fa-check-circle"></i>
+                        <h2 class="text-xl font-bold">Analysis Complete</h2>
+                    </div>
+                    <p class="text-slate-400 text-sm mb-6">We extracted the following clinical symptoms. Please uncheck any that do not apply to you.</p>
+                    
+                    <div id="symptoms-list" class="space-y-3 mb-6 bg-slate-900 p-4 rounded-xl border border-slate-800">
+                        <!-- Checkboxes injected here via JS -->
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button onclick="proceedToDiagnosis()" id="btn-proceed" class="flex-1 bg-teal-600 hover:bg-teal-500 text-white font-semibold py-3 px-4 rounded-xl transition-all">
+                            Proceed to Diagnosis
+                        </button>
+                        <button onclick="resetSession()" class="px-6 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-xl transition-all">
+                            Back
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: QUESTIONS -->
+                <div id="step-3" class="hidden fade-in">
+                    <div class="flex justify-between items-center mb-6 text-sm text-slate-400">
+                        <span class="font-semibold text-teal-400 uppercase tracking-wider text-xs">Diagnostic Interview</span>
+                        <span id="question-progress">Q 1 of 3</span>
+                    </div>
+                    
+                    <div class="bg-slate-900 border border-slate-700 p-6 rounded-xl mb-6 text-center">
+                        <h3 id="question-text" class="text-lg font-medium text-slate-200"></h3>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="answerQuestion(true)" class="bg-slate-800 hover:bg-teal-600 hover:border-teal-500 border border-slate-700 text-slate-200 font-semibold py-3 px-4 rounded-xl transition-all">
+                            Yes, it applies
+                        </button>
+                        <button onclick="answerQuestion(false)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold py-3 px-4 rounded-xl transition-all">
+                            No / Not sure
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 4: RESULTS -->
+                <div id="step-4" class="hidden fade-in">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full mb-4">
+                            <i class="fa-solid fa-clipboard-check text-3xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-100">Diagnostic Results</h2>
+                    </div>
+
+                    <div id="results-content">
+                        <!-- Results injected here -->
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-slate-800">
+                        <p class="text-xs text-slate-500 text-center mb-6 italic">
+                            ⚠️ Disclaimer: MindMantra is an AI project and does not provide medical advice. Please consult a qualified healthcare provider for proper diagnosis.
+                        </p>
+                        <button onclick="resetSession()" class="w-full bg-teal-600 hover:bg-teal-500 text-white font-semibold py-3 px-4 rounded-xl transition-all">
+                            Start New Session
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: ABOUT PAGE -->
+        <!-- ========================================== -->
+        <div id="view-about" class="hidden fade-in space-y-6">
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa-solid fa-circle-info text-teal-400"></i> About the Project
+                </h2>
+                
+                <h3 class="text-lg font-semibold text-slate-200 mb-2">Mind Mantra: AI Powered Mental Health Support System</h3>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                    This project is a final year capstone project developed by a <strong>Computer Engineering student</strong> from the <strong>School of Engineering, Pokhara University</strong>. It is an AI-powered Mental Health Support System designed to assist individuals who are experiencing mental health challenges.
+                </p>
+
+                <h4 class="font-semibold text-slate-300 mb-2">The system offers:</h4>
+                <ul class="list-disc list-inside text-slate-400 text-sm space-y-1 mb-6 ml-2">
+                    <li><strong>Symptom-based prediction</strong> of mental health conditions.</li>
+                    <li><strong>Actionable precautions</strong> to assist individuals on their recovery journey.</li>
+                </ul>
+
+                <p class="text-slate-400 text-sm leading-relaxed mb-8">
+                    The goal of this platform is to provide accessible mental health support and encourage people to talk about their mental well-being without fear of judgment.
+                </p>
+
+                <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5">
+                    <h4 class="font-bold text-amber-400 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Disclaimer
+                    </h4>
+                    <p class="text-xs text-amber-200/80 leading-relaxed mb-3">
+                        This platform is intended for <strong>educational and research purposes only</strong>. It is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the guidance of a qualified mental health professional with any questions or concerns you may have regarding a medical condition.
+                    </p>
+                    <p class="text-xs text-amber-200/80 leading-relaxed mb-3">
+                        The recommendations provided by this system are based on available data and AI models and may not be fully accurate. The developer and affiliated institutions are not liable for any decisions made based on the information provided by this system.
+                    </p>
+                    <p class="text-xs text-amber-200/80 leading-relaxed">
+                        By using this platform, you agree to this disclaimer and understand that the system does not provide licensed medical or psychiatric care.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-6 border-t border-slate-800 bg-slate-950">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <p class="text-xs text-slate-500">
+                © 2026 Final Year Project | School of Engineering, Pokhara University – Nepal<br>
+                <a href="#" class="text-teal-500 hover:underline mt-1 inline-block">mindmantra.netlify.app</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- Configuration ---
+        const API_BASE_URL = "http://localhost:8000/api";
+        
+        // --- State Variables ---
+        let state = {
+            matchedSymptoms: [],
+            diagnosticData: {},
+            currentQIndex: 0
+        };
+
+        // --- Motivational Quotes ---
+        const quotes = [
+            "\"You don't have to control your thoughts. You just have to stop letting them control you.\" — Dan Millman",
+            "\"Healing takes time, and asking for help is a courageous step. You are never alone in this journey.\"",
+            "\"Your mental health is a priority. Your happiness is essential. Your self-care is a necessity.\"",
+            "\"It is okay to not be okay, but you don't have to navigate it in silence.\"",
+            "\"This feeling will pass. You are stronger, more resilient, and more capable than you think.\"",
+            "\"You are not your illness. You have an individual story, a beautiful mind, and a bright future.\"",
+            "\"Self-care is how you take your power back.\" — Lalah Delia",
+            "\"Sometimes the bravest thing you can do is just to take things one day at a time.\""
+        ];
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setRandomQuote();
+        });
+
+        // --- Navigation Logic ---
+        function switchTab(tabId) {
+            // Update nav styles
+            document.getElementById('nav-diagnostic').className = tabId === 'diagnostic' ? 'text-teal-400 font-semibold transition-colors text-sm' : 'text-slate-400 font-medium transition-colors hover:text-slate-200 text-sm';
+            document.getElementById('nav-about').className = tabId === 'about' ? 'text-teal-400 font-semibold transition-colors text-sm' : 'text-slate-400 font-medium transition-colors hover:text-slate-200 text-sm';
+            
+            // Toggle Views
+            document.getElementById('view-diagnostic').classList.toggle('hidden', tabId !== 'diagnostic');
+            document.getElementById('view-about').classList.toggle('hidden', tabId !== 'about');
+        }
+
+        function showStep(stepNum) {
+            [1, 2, 3, 4].forEach(n => {
+                document.getElementById(`step-${n}`).classList.add('hidden');
+            });
+            document.getElementById(`step-${stepNum}`).classList.remove('hidden');
+        }
+
+        function setRandomQuote() {
+            const quote = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('quote-text').innerText = quote;
+        }
+
+        function showError(msg) {
+            const container = document.getElementById('error-container');
+            document.getElementById('error-message').innerText = msg;
+            container.classList.remove('hidden');
+            setTimeout(() => container.classList.add('hidden'), 5000);
+        }
+
+        // --- API Interaction Logic ---
+        async function analyzeSymptoms() {
+            const text = document.getElementById('user-input').value.trim();
+            if (text.length < 10) {
+                showError("Please provide a bit more detail so the AI can understand.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-analyze');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/match-symptoms`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_text: text, threshold: 0.35 })
+                });
+                
+                if (!response.ok) throw new Error('Backend server is unreachable.');
+                
+                const data = await response.json();
+                state.matchedSymptoms = data.matches || [];
+
+                if (state.matchedSymptoms.length > 0) {
+                    renderSymptomsCheckboxes();
+                    showStep(2);
+                } else {
+                    showError("No strong symptom matches found. Try describing your state differently.");
+                }
+            } catch (err) {
+                showError("Cannot connect to FastAPI backend. Ensure it is running on port 8000.");
+            } finally {
+                btn.innerHTML = '<span>Analyze Symptoms</span><i class="fa-solid fa-magnifying-glass text-sm"></i>';
+                btn.disabled = false;
+            }
+        }
+
+        function renderSymptomsCheckboxes() {
+            const container = document.getElementById('symptoms-list');
+            container.innerHTML = '';
+            
+            state.matchedSymptoms.forEach(sym => {
+                const cleanName = sym.name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const percentage = Math.round(sym.score * 100);
+                
+                container.innerHTML += `
+                    <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer border border-transparent hover:border-slate-700">
+                        <input type="checkbox" value="${sym.id}" checked class="w-5 h-5 accent-teal-500 rounded border-slate-700 bg-slate-900 focus:ring-teal-500">
+                        <span class="text-slate-200 font-medium">${cleanName}</span>
+                        <span class="text-xs text-slate-500 ml-auto bg-slate-950 px-2 py-1 rounded">Match: ${percentage}%</span>
+                    </label>
+                `;
+            });
+        }
+
+        async function proceedToDiagnosis() {
+            // Get all checked IDs
+            const checkedBoxes = document.querySelectorAll('#symptoms-list input[type="checkbox"]:checked');
+            const selectedIds = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+
+            if (selectedIds.length === 0) {
+                showError("Please select at least one symptom to proceed.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-proceed');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Consulting Engine...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/diagnose`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symptom_ids: selectedIds })
+                });
+                
+                if (!response.ok) throw new Error('Diagnosis Engine Failed');
+                
+                state.diagnosticData = await response.json();
+                state.currentQIndex = 0;
+
+                const hasQuestions = state.diagnosticData.next_questions && state.diagnosticData.next_questions.length > 0;
+                
+                if (state.diagnosticData.complete || !hasQuestions) {
+                    await renderResults();
+                } else {
+                    renderQuestion();
+                    showStep(3);
+                }
+            } catch (err) {
+                showError("Failed to fetch diagnosis from backend.");
+            } finally {
+                btn.innerHTML = 'Proceed to Diagnosis';
+                btn.disabled = false;
+            }
+        }
+
+        function renderQuestion() {
+            const questions = state.diagnosticData.next_questions;
+            document.getElementById('question-progress').innerText = `Question ${state.currentQIndex + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerText = questions[state.currentQIndex].text;
+        }
+
+        async function answerQuestion(isYes) {
+            state.currentQIndex++;
+            const questions = state.diagnosticData.next_questions;
+            
+            if (state.currentQIndex < questions.length) {
+                renderQuestion();
+            } else {
+                await renderResults();
+            }
+        }
+
+        async function renderResults() {
+            showStep(4);
+            const container = document.getElementById('results-content');
+            const tops = state.diagnosticData.top_conditions || [];
+
+            if (tops.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-4 rounded-xl text-center">
+                        We could not match your symptoms to a specific illness with high confidence.
+                    </div>`;
+                return;
+            }
+
+            const primary = tops[0];
+            const confidence = (primary.score * 100).toFixed(1);
+
+            // Fetch precautions for the primary condition
+            let precautionsHtml = '';
+            try {
+                const res = await fetch(`${API_BASE_URL}/precautions?condition=${encodeURIComponent(primary.illness_name)}`);
+                const precData = await res.json();
+                const precautions = precData.precautions || ["Please consult a healthcare professional."];
+                
+                precautionsHtml = precautions.map(p => `
+                    <li class="flex items-start gap-3">
+                        <i class="fa-solid fa-circle-check text-teal-500 mt-1"></i>
+                        <span class="text-slate-300 text-sm">${p}</span>
+                    </li>
+                `).join('');
+            } catch(e) {
+                precautionsHtml = `<li class="text-slate-400 text-sm">Failed to load precautions. Please consult a doctor.</li>`;
+            }
+
+            // Build Other Conditions HTML
+            let otherConditionsHtml = '';
+            if (tops.length > 1) {
+                const othersList = tops.slice(1, 3).map(c => `
+                    <div class="text-xs text-slate-400 flex justify-between bg-slate-900 p-2 rounded">
+                        <span>${c.illness_name}</span>
+                        <span>${(c.score * 100).toFixed(1)}%</span>
+                    </div>
+                `).join('');
+                
+                otherConditionsHtml = `
+                    <div class="mt-6 pt-6 border-t border-slate-800">
+                        <h4 class="text-sm font-semibold text-slate-400 mb-3">Other possible considerations:</h4>
+                        <div class="space-y-2">${othersList}</div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-6 mb-6">
+                    <div class="text-xs font-bold text-teal-500 uppercase tracking-wider mb-1">Primary Match</div>
+                    <h3 class="text-2xl font-bold text-slate-100 mb-2">${primary.illness_name}</h3>
+                    <div class="w-full bg-slate-800 rounded-full h-2 mb-2">
+                        <div class="bg-teal-500 h-2 rounded-full" style="width: ${confidence}%"></div>
+                    </div>
+                    <p class="text-xs text-slate-400 text-right">Relevance Score: ${confidence}%</p>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-shield-heart text-rose-400"></i> Recommended Precautions
+                    </h4>
+                    <ul class="space-y-3 bg-slate-900/50 p-5 rounded-xl border border-slate-800">
+                        ${precautionsHtml}
+                    </ul>
+                </div>
+                
+                ${otherConditionsHtml}
+            `;
+        }
+
+        function resetSession() {
+            state = { matchedSymptoms: [], diagnosticData: {}, currentQIndex: 0 };
+            document.getElementById('user-input').value = '';
+            setRandomQuote();
+            showStep(1);
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
