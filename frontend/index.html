@@ -203,11 +203,60 @@
     <footer class="mt-auto py-6 border-t border-slate-800 bg-slate-950">
         <div class="max-w-4xl mx-auto px-4 text-center">
             <p class="text-xs text-slate-500">
-                © 2026 Final Year Project | School of Engineering, Pokhara University – Nepal<br>
+                © 2025 Final Year Project | School of Engineering, Pokhara University – Nepal<br>
                 <a href="#" class="text-teal-500 hover:underline mt-1 inline-block">mindmantra.netlify.app</a>
             </p>
         </div>
     </footer>
+
+    <!-- Floating Emergency Button -->
+    <button onclick="toggleEmergencyModal()" class="fixed bottom-6 right-6 z-40 bg-rose-600 hover:bg-rose-500 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg shadow-rose-600/30 transition-transform hover:scale-110 group">
+        <i class="fa-solid fa-phone-volume text-xl group-hover:animate-bounce"></i>
+    </button>
+
+    <!-- Emergency Modal -->
+    <div id="emergency-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
+        <div class="bg-slate-900 border border-rose-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl relative">
+            <button onclick="toggleEmergencyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-200 transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            
+            <div class="flex items-center gap-3 mb-4 text-rose-500">
+                <div class="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold">Crisis Support</h3>
+            </div>
+            
+            <p class="text-sm text-slate-300 mb-6 leading-relaxed">
+                If you or someone you know is in immediate danger or experiencing a mental health crisis, please reach out for professional help immediately. <strong>You are not alone.</strong>
+            </p>
+            
+            <div class="space-y-3">
+                <a href="tel:1166" class="flex items-center gap-4 bg-slate-800/50 border border-slate-700 p-4 rounded-xl hover:bg-slate-800 transition-colors group">
+                    <div class="w-10 h-10 bg-teal-500/20 text-teal-400 rounded-lg flex items-center justify-center group-hover:bg-teal-500 group-hover:text-white transition-colors"><i class="fa-solid fa-heart-pulse"></i></div>
+                    <div>
+                        <div class="font-bold text-slate-100">National Suicide Hotline</div>
+                        <div class="text-xs text-slate-400">Nepal: 1166 (TUTH)</div>
+                    </div>
+                </a>
+                <a href="tel:100" class="flex items-center gap-4 bg-slate-800/50 border border-slate-700 p-4 rounded-xl hover:bg-slate-800 transition-colors group">
+                    <div class="w-10 h-10 bg-rose-500/20 text-rose-400 rounded-lg flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-colors"><i class="fa-solid fa-truck-medical"></i></div>
+                    <div>
+                        <div class="font-bold text-slate-100">Police / Emergency</div>
+                        <div class="text-xs text-slate-400">Nepal: 100 / 102</div>
+                    </div>
+                </a>
+                <a href="tel:16600133666" class="flex items-center gap-4 bg-slate-800/50 border border-slate-700 p-4 rounded-xl hover:bg-slate-800 transition-colors group">
+                    <div class="w-10 h-10 bg-indigo-500/20 text-indigo-400 rounded-lg flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-colors"><i class="fa-solid fa-hands-holding-child"></i></div>
+                    <div>
+                        <div class="font-bold text-slate-100">Transcultural Psychosocial</div>
+                        <div class="text-xs text-slate-400">TPO Nepal: 1660 010 2005</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
 
     <!-- JavaScript Logic -->
     <script>
@@ -266,6 +315,46 @@
             document.getElementById('error-message').innerText = msg;
             container.classList.remove('hidden');
             setTimeout(() => container.classList.add('hidden'), 5000);
+        }
+
+        function toggleEmergencyModal() {
+            const modal = document.getElementById('emergency-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function copyResultsToClipboard() {
+            const btn = document.getElementById('btn-copy');
+            const originalHtml = btn.innerHTML;
+            
+            // Extract text nicely from the results state
+            const primary = state.diagnosticData.top_conditions[0];
+            let textToCopy = `MindMantra Diagnostic Result\nPrimary Match: ${primary.illness_name} (${(primary.score * 100).toFixed(1)}%)\n\nPrecautions:\n`;
+            
+            const listItems = document.querySelectorAll('#results-content ul li span');
+            listItems.forEach(item => {
+                textToCopy += `- ${item.innerText}\n`;
+            });
+
+            textToCopy += `\nDisclaimer: This is AI generated and not official medical advice.`;
+
+            // Use older execCommand approach for max iframe compatibility, or modern clipboard API
+            try {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> <span class="text-emerald-400">Copied!</span>';
+                    setTimeout(() => btn.innerHTML = originalHtml, 2000);
+                });
+            } catch (err) {
+                // Fallback
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                textArea.remove();
+                
+                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> <span class="text-emerald-400">Copied!</span>';
+                setTimeout(() => btn.innerHTML = originalHtml, 2000);
+            }
         }
 
         // --- API Interaction Logic ---
@@ -454,6 +543,10 @@
                 </div>
                 
                 ${otherConditionsHtml}
+                
+                <button id="btn-copy" onclick="copyResultsToClipboard()" class="mt-6 w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold py-3 px-4 rounded-xl transition-all flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-copy"></i> <span>Copy Results to Clipboard</span>
+                </button>
             `;
         }
 
