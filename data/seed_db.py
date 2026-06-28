@@ -53,16 +53,27 @@ def seed_database():
     if not (csv_dir / "illness_dataset.csv").exists() and (current_dir / "illness_dataset.csv").exists():
         csv_dir = current_dir
     
+    # Explicitly verify all required files exist before pandas tries to read them
+    required_files = ["illness_dataset.csv", "precaution_dataset.csv", "followup_dataset.csv"]
+    for file_name in required_files:
+        target_path = csv_dir / file_name
+        if not target_path.exists():
+            print(f"\n❌ Error: Missing required file '{file_name}'")
+            print(f"Searched at exact path: {target_path.absolute()}")
+            return
+    
     with Session(engine) as session:
         print(f"Reading CSV files from {csv_dir}...")
         try:
-            illness_df = pd.read_csv(csv_dir / "illness_dataset.csv")
-            precaution_df = pd.read_csv(csv_dir / "precaution_dataset.csv")
-            followup_df = pd.read_csv(csv_dir / "followup_dataset.csv")
-        except FileNotFoundError as e:
-            print(f"\n❌ Error: Could not find the CSV files.")
-            print(f"Please ensure you have placed your dataset files inside:\n{csv_dir}")
-            print(f"Original error: {e}")
+            # Added encoding='windows-1252' to handle special characters (like smart quotes) 
+            # that cause UnicodeDecodeError during parsing.
+            illness_df = pd.read_csv(csv_dir / "illness_dataset.csv", encoding='windows-1252')
+            precaution_df = pd.read_csv(csv_dir / "precaution_dataset.csv", encoding='windows-1252')
+            followup_df = pd.read_csv(csv_dir / "followup_dataset.csv", encoding='windows-1252')
+        except Exception as e:
+            print(f"\n❌ Error: Failed to parse the CSV files.")
+            print(f"Please ensure the files are not empty and are valid CSV format.")
+            print(f"Exact Pandas Error: {type(e).__name__} - {e}")
             return
         
         # 1. Seed Symptoms
