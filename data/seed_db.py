@@ -45,11 +45,21 @@ def seed_database():
     print("Creating database tables...")
     SQLModel.metadata.create_all(engine)
     
+    # Use robust absolute paths based on this file's location
+    current_dir = Path(__file__).parent
+    csv_dir = current_dir / "raw_csvs"
+    
     with Session(engine) as session:
-        print("Reading CSV files...")
-        illness_df = pd.read_csv("data/raw_csvs/illness_dataset.csv")
-        precaution_df = pd.read_csv("data/raw_csvs/precaution_dataset.csv")
-        followup_df = pd.read_csv("data/raw_csvs/followup_dataset.csv")
+        print(f"Reading CSV files from {csv_dir}...")
+        try:
+            illness_df = pd.read_csv(csv_dir / "illness_dataset.csv")
+            precaution_df = pd.read_csv(csv_dir / "precaution_dataset.csv")
+            followup_df = pd.read_csv(csv_dir / "followup_dataset.csv")
+        except FileNotFoundError as e:
+            print(f"\n❌ Error: Could not find the CSV files.")
+            print(f"Please ensure you have placed your dataset files inside:\n{csv_dir}")
+            print(f"Original error: {e}")
+            return
         
         # 1. Seed Symptoms
         print("Seeding Symptoms...")
