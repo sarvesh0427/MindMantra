@@ -49,6 +49,10 @@ def seed_database():
     current_dir = Path(__file__).parent
     csv_dir = current_dir / "raw_csvs"
     
+    # Check if files are directly in the 'data' folder instead of 'raw_csvs'
+    if not (csv_dir / "illness_dataset.csv").exists() and (current_dir / "illness_dataset.csv").exists():
+        csv_dir = current_dir
+    
     with Session(engine) as session:
         print(f"Reading CSV files from {csv_dir}...")
         try:
