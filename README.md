@@ -22,8 +22,7 @@ Building upon the first version - a Final Year Project, MindMantra v2 introduces
 * PostgreSQL
 * Machine Learning
 * Natural Language Processing (NLP)
-* Streamlit (Frontend Integration)
-* Docker
+* Frontend Integration using HTML, CSS, and Javascript
 
 ## 📌 Previous Version
 
