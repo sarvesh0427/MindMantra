@@ -24,3 +24,8 @@ def get_session():
     """Dependency generator for FastAPI routes to manage database sessions safely."""
     with Session(engine) as session:
         yield session
+
+
+'''
+This is the step 1 of this project, this file contains the engine. This engine is like a bridge or a pipeline connecting python code to postgresql database. It uses the DATABASE_URL to find where the database lives on computer.
+'''
