@@ -34,3 +34,12 @@ class Precaution(SQLModel, table=True):
     illness_id: Optional[int] = Field(default=None, foreign_key="illness.id")
     
     illness: Optional["Illness"] = Relationship(back_populates="precautions")
+
+
+'''
+This file tells sql model create these tables in Postgresql and define how they relate to each other.
+SQLModel: every database table inherits from this, sql table.
+Field: used to define each columns; instead of sql query like: id SERIAL PRIMARY KEY, it write: id:optional[int] = Field(primary_key=True)
+
+
+'''
