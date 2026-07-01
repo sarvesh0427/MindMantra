@@ -40,6 +40,6 @@ class Precaution(SQLModel, table=True):
 This file tells sql model create these tables in Postgresql and define how they relate to each other.
 SQLModel: every database table inherits from this, sql table.
 Field: used to define each columns; instead of sql query like: id SERIAL PRIMARY KEY, it write: id:optional[int] = Field(primary_key=True)
-
+Relationship: define relationship between tables; instead of writing SQL JOINS maually, it define: symptoms=Relationship(...)
 
 '''
