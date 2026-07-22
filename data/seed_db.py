@@ -169,3 +169,11 @@ def seed_database():
 
 if __name__ == "__main__":
     seed_database()
+
+
+
+'''
+This is the first file that runs when you start the project. It is a one-time script that reads the csv files and pushes them into the database.
+It reads old, familiar csv files using pandas, loops through the rows, and pushes them across the engine bridge into your postgresql tables forever.
+once this is run, it theoretically never need csv again.
+'''
