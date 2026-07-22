@@ -67,3 +67,9 @@ class SymptomMatcher:
 
         # Sort by best match first
         return sorted(matches, key=lambda x: x['score'], reverse=True)
+
+
+
+'''
+This loads sentence transformer model (all-MiniLM-L6-v2), when a user types a sentence, this file turns their text into mathematical vectors and uses Cosine Similarity to match their words to the official symptoms in the database. The threshold parameter allows for adjusting the sensitivity of the matching process, enabling more or fewer results based on user preference.
+'''
