@@ -79,3 +79,8 @@ class DiagnosticEngine:
                 select(Precaution).where(Precaution.illness_id == illness.id)
             ).all()
             return [p.text for p in precautions]
+
+
+'''
+once the nlp finds the symptoms, this file asks the sql database the question and it calculates the probability scores and figures out which follow-up questions to ask the user. It also returns the final precautions for the diagnosed illness.
+'''
