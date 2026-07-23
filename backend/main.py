@@ -37,3 +37,8 @@ if __name__ == "__main__":
     # Make sure tables are generated if they do not exist
     SQLModel.metadata.create_all(engine)
     uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)
+
+
+'''
+this is the entr point of server. When we type python -m backend.main, this file turns the server on, loads the routes.py and keeps the application running 24/7 listening for incoming requests. It also sets up CORS to allow the frontend to communicate with the backend safely, and provides a root endpoint for health checks and basic information about the API.
+'''
