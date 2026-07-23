@@ -58,7 +58,7 @@ def seed_database():
     for file_name in required_files:
         target_path = csv_dir / file_name
         if not target_path.exists():
-            print(f"\n❌ Error: Missing required file '{file_name}'")
+            print(f"\nError: Missing required file '{file_name}'")
             print(f"Searched at exact path: {target_path.absolute()}")
             return
     
@@ -71,7 +71,7 @@ def seed_database():
             precaution_df = pd.read_csv(csv_dir / "precaution_dataset.csv", encoding='windows-1252')
             followup_df = pd.read_csv(csv_dir / "followup_dataset.csv", encoding='windows-1252')
         except Exception as e:
-            print(f"\n❌ Error: Failed to parse the CSV files.")
+            print(f"\nError: Failed to parse the CSV files.")
             print(f"Please ensure the files are not empty and are valid CSV format.")
             print(f"Exact Pandas Error: {type(e).__name__} - {e}")
             return
@@ -175,5 +175,5 @@ if __name__ == "__main__":
 '''
 This is the first file that runs when you start the project. It is a one-time script that reads the csv files and pushes them into the database.
 It reads old, familiar csv files using pandas, loops through the rows, and pushes them across the engine bridge into your postgresql tables forever.
-once this is run, it theoretically never need csv again.
+once this is run, it theoretically never need csv again. the csv files are only used to seed the database once. After that, the backend will read from the database directly.
 '''
