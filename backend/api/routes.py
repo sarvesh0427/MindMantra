@@ -65,3 +65,9 @@ def refresh_nlp_cache():
         return {"status": "success", "message": "Symptom vector space updated."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+'''
+this file creates URL endpoints like api/match-symptoms or api/diagnose; it tells the waiter: if a customer asks for /diagnose, take their data, go the kitchen, run ml_service.py, and bring the answer back to the customer. It also handles errors and exceptions, returning a 500 error if something goes wrong. The endpoints are designed to be used by the frontend of the application, which will call these endpoints with user data and receive structured responses.
+'''
