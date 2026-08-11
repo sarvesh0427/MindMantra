@@ -1,5 +1,5 @@
 # 🧠 MindMantra v2
-**Status:** 🚧 Currently under active development.
+**Status:** 
 
 MindMantra v2 is an AI-powered mental health screening and support platform designed to provide early mental health assessment through intelligent symptom analysis, and personalized recommendations.
 
